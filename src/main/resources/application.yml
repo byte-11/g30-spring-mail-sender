@@ -1,0 +1,26 @@
+spring:
+  mail:
+    host: sandbox.smtp.mailtrap.io
+    port: 587
+    username: dbf67fd2546de8
+    password: 7dc3c2fef373d4
+    properties:
+      mail:
+        smtp:
+          starttls:
+            enable: true
+          auth: true
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/db_test
+    username: postgres
+    password: 1596psql
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+  application:
+    name: spring-emil
+    support-email: pdp_support@gmail.uz
+frontend:
+  url: http://127.0.0.1:8080/auth/verify?token=
