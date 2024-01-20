@@ -2,23 +2,29 @@ package uz.pdp.g30springmailmanager.service;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
-import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import uz.pdp.g30springmailmanager.domain.Authentication;
 import uz.pdp.g30springmailmanager.domain.User;
 import uz.pdp.g30springmailmanager.dto.MailDto;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EmailService {
 
     private final JavaMailSender mailSender;
@@ -42,13 +48,16 @@ public class EmailService {
 
     @SneakyThrows
     public void send(String from, String to, String subject, String message) {
-
+        sendEmailVerificationMessage(new User());
     }
 
+    private ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
     @SneakyThrows
+    @Async
     public void sendEmailVerificationMessage(final User user) {
+        TimeUnit.SECONDS.sleep(10);
         var helper = new MimeMessageHelper(mailSender.createMimeMessage());
-        helper.setSubject("Email Verification");
         helper.setFrom("pdp@gmail.com");
         helper.setTo(user.getEmail());
         Template template = configuration.getTemplate("mail/verification_email.ftl");
@@ -60,5 +69,6 @@ public class EmailService {
         );
         helper.setText(html, true);
         mailSender.send(helper.getMimeMessage());
+        log.info("[{}] email sent", Thread.currentThread().getName());
     }
 }
